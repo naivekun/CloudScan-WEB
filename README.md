@@ -1,4 +1,3 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 ## 食用方法
 此项目为云端☁️扫描的WEB端，使用WebRTC接口调用摄像头扫描二维码。
 
@@ -7,6 +6,12 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 由于WebRTC的要求，部署必须使用`https`，否则无法调用接口。
 
 自行部署前请删除index.html中的Google Analytics相关JS(已注释)。
+
+已集成入[sign-your-horse](https://github.com/naivekun/sign-your-horse)
+
+---
+
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
 
