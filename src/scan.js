@@ -1,6 +1,6 @@
 import React from 'react';
 import jsQR from 'jsqr';
-import {Select, Row, Col, Divider, Typography, message} from 'antd';
+import {Select, Row, Col, Divider, Typography, message, Slider} from 'antd';
 import Axios from 'axios';
 
 const {scanImageData} = require('zbar.wasm');
@@ -53,9 +53,22 @@ class Scan extends React.Component {
                 this.video.play()
                 console.log(this.video)
                 console.log(this.videoDom.current)
-                let videoTrack = stream.getVideoTracks()[0]
-
+                let videoTrack = stream.getVideoTracks()[0];
+                let zoomOptions = undefined;
+                if (this.state.isChrome && ('zoom' in videoTrack.getCapabilities())){
+                    let cap = videoTrack.getCapabilities();
+                    zoomOptions = {min:cap.zoom.min,max:cap.zoom.max}
+                    // console.log(1)
+                }
                 let id = setInterval(() => {
+                    // console.log(this.state.zoom)
+                    if (zoomOptions){
+                        if (window.zoom !== this.state.zoom){
+                            window.zoom = this.state.zoom;
+                            let realZoom = zoomOptions.min + (zoomOptions.max-zoomOptions.min) * window.zoom
+                            videoTrack.applyConstraints({advanced:[{zoom:realZoom}]});
+                        }
+                    }
                     canvas.drawImage(this.video, 0, 0, 720, 720)
                     var imageData = canvas.getImageData(0, 0, 720, 720);
                     // console.log(imageData)
@@ -143,10 +156,18 @@ class Scan extends React.Component {
         this.canvasDom = React.createRef();
         this.videoDom = React.createRef();
         this.p = React.createRef();
-        this.state = {videoSources: []};
+        let isChrome = navigator.userAgent.includes("Chrome");
+        this.state = {videoSources: [], isChrome: isChrome,zoom:0};
         this.video = document.createElement("video");
     }
 
+    zoomOnChange = value =>{
+        this.setState({
+            zoom: value,
+        });
+        console.log(value)
+
+    }
 
     componentDidMount() {
         this.loadVideoSources()
@@ -171,6 +192,13 @@ class Scan extends React.Component {
                                 })
                             }
                         </Select>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col span={22} offset={1}>
+                        <Slider min={0}
+                                max={1} step={0.01} defaultValue={0} disabled={!this.state.isChrome}
+                                onChange={this.zoomOnChange}/>
                     </Col>
                 </Row>
                 <Divider/>
